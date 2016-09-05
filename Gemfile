@@ -23,6 +23,7 @@ gem 'grape'
 gem 'grape-swagger'
 gem 'rack-cors', require: 'rack/cors'
 gem 'grape-active_model_serializers'
+gem 'hashie-forbidden_attributes'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

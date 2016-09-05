@@ -34,25 +34,31 @@ module API
           # update
           desc 'Update a user'
           params do
+            requires :user_id, type: Integer
             optional :first_name, type: String
             optional :last_name, type: String
             optional :email, type: String
-            # requires :password, type: String
-            requires :password_confirm, type: String
-            requires :user_id, type: Integer
+            optional :new_password, type: String
+            optional :old_password, type: String
+
+            all_or_none_of :old_password, :new_password
           end
           put '', root: :users do
-            byebug
             p = declared(params)
             user = User.find(p.user_id)
-            # pull password check into a helper module?
-            if user.password != p.password_confirm
-              status 401
-              return 'Passwords don\'t match'
+            if p.new_password
+              if user.password != p.old_password
+                status 401
+                return 'Passwords don\'t match'
+              else
+                user.password = p.new_password
+                user.save!
+                user
+              end
             else
               user.update!(user_params)
+              user
             end
-            # byebug
           end
         end
         #
@@ -63,14 +69,21 @@ module API
         # get ':id', root: 'user' do
         #   User.where(id: permitted_params[:id]).first!
         # end
+      end
 
-        private
+      # private
 
+      helpers do
         def user_params
-          # declared(params)[:first_name], declared(params)[:last_name]
-          params.permit(:first_name, :last_name, :email, :password)
+          p = declared(params)
+          serialized_params = {}
+          serialized_params[:first_name] = p.first_name unless p.first_name.nil?
+          serialized_params[:last_name] = p.last_name unless p.last_name.nil?
+          serialized_params[:email] = p.email unless p.email.nil?
+          serialized_params
         end
       end
+
     end
   end
 end
