@@ -30,11 +30,10 @@ module API
           user.save!
         end
 
-        route_param :user_id do
+        route_param :user_id, type: Integer do
           # update
           desc 'Update a user'
           params do
-            requires :user_id, type: Integer
             optional :first_name, type: String
             optional :last_name, type: String
             optional :email, type: String
@@ -45,7 +44,8 @@ module API
           end
           put '', root: :users do
             p = declared(params)
-            user = User.find(p.user_id)
+            # user_id is filtered with declared
+            user = User.find(params[:user_id])
             if p.new_password
               if user.password != p.old_password
                 status 401
@@ -59,6 +59,11 @@ module API
               user.update!(user_params)
               user
             end
+          end
+
+          desc 'Get a user'
+          get '' do
+            User.find(params[:user_id])
           end
         end
         #
