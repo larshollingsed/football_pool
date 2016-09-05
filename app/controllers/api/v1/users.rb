@@ -56,6 +56,7 @@ module API
           put '', root: :users do
             p = declared(params)
             user = User.find(params[:user_id])
+
             if p.new_password
               if user.password != p.old_password
                 status 401
@@ -65,6 +66,7 @@ module API
                 user.save!
                 user
               end
+
             else
               user.update!(user_params)
               user
@@ -75,6 +77,15 @@ module API
           get '' do
             User.find(params[:user_id])
           end
+
+          resource 'picks' do
+            desc "Get a user's picks"
+            get '' do
+              user = User.find(params[:user_id])
+              user.picks
+            end
+          end
+
         end
       end
 

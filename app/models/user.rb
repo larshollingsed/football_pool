@@ -1,5 +1,6 @@
 require 'bcrypt'
 class User < ApplicationRecord
+  has_many :picks
   include BCrypt
 
   def password

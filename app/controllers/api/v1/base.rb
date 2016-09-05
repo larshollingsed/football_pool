@@ -5,8 +5,8 @@ module API
     class Base < Grape::API
       mount API::V1::Users
       mount API::V1::Teams
+      mount API::V1::Picks
       mount API::V1::Games
-      # mount API::V1::AnotherResource
 
       add_swagger_documentation(
         api_version: 'v1',
