@@ -28,6 +28,7 @@ module API
                             password: p.password
                           })
           user.save!
+          user
         end
 
         route_param :user_id, type: Integer do
