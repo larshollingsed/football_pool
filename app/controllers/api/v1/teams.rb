@@ -16,6 +16,7 @@ module API
           optional :location, type: String
           optional :team_record, type: String
           optional :logo_url, type: String
+          optional :game_id, type: Integer
         end
         post '', root: :teams do
           team = Team.new(team_params)
@@ -34,7 +35,8 @@ module API
             optional :location, type: String
             optional :team_record, type: String
             optional :logo_url, type: String
-            at_least_one_of :name, :location, :team_record, :logo_url
+            optional :game_id, type: Integer
+            at_least_one_of :name, :location, :team_record, :logo_url, :game_id
           end
           put '' do
             team = Team.find(params[:team_id])
@@ -51,7 +53,7 @@ module API
           p = declared(params)
           serialized_params = {}
 
-          allowed_params = [:name, :logo_url, :team_record, :location]
+          allowed_params = [:name, :logo_url, :team_record, :location, :game_id]
           allowed_params.each { |param| serialized_params[param] = p[param] unless p[param].nil? }
 
           serialized_params
