@@ -44,8 +44,6 @@ module API
             team
           end
         end
-
-        # resource :teams
       end
 
       helpers do

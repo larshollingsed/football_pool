@@ -16,6 +16,11 @@ module API
           requires :email, type: String
           requires :password, type: String
           requires :password_confirm, type: String
+          optional :address, type: String
+          optional :address_two, type: String
+          optional :city, type: String
+          optional :state, type: String
+          optional :zip_code, type: Integer
         end
         post '', root: :users do
           p = declared(params)
@@ -40,12 +45,16 @@ module API
             optional :email, type: String
             optional :new_password, type: String
             optional :old_password, type: String
+            optional :address, type: String
+            optional :address_two, type: String
+            optional :city, type: String
+            optional :state, type: String
+            optional :zip_code, type: Integer
 
             all_or_none_of :old_password, :new_password
           end
           put '', root: :users do
             p = declared(params)
-            # user_id is filtered with declared
             user = User.find(params[:user_id])
             if p.new_password
               if user.password != p.old_password
@@ -67,14 +76,6 @@ module API
             User.find(params[:user_id])
           end
         end
-        #
-        # desc 'Return a user'
-        # params do
-        #   requires :id, type: String, desc: 'ID of the user'
-        # end
-        # get ':id', root: 'user' do
-        #   User.where(id: permitted_params[:id]).first!
-        # end
       end
 
       # private
@@ -83,9 +84,10 @@ module API
         def user_params
           p = declared(params)
           serialized_params = {}
-          serialized_params[:first_name] = p.first_name unless p.first_name.nil?
-          serialized_params[:last_name] = p.last_name unless p.last_name.nil?
-          serialized_params[:email] = p.email unless p.email.nil?
+
+          allowed_params = [:first_name, :last_name, :email, :address, :addres_two, :city, :state, :zip_code]
+          allowed_params.each { |param| serialized_params[param] = p[param] unless p[param].nil? }
+
           serialized_params
         end
       end
