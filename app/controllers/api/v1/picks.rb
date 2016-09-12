@@ -6,7 +6,6 @@ module API
       resource :picks do
         desc 'Return all picks'
         get '' do
-          byebug
           Pick.all
         end
 

@@ -15,23 +15,24 @@ module API
           requires :last_name, type: String
           requires :email, type: String
           requires :password, type: String
-          requires :password_confirm, type: String
           optional :address, type: String
           optional :address_two, type: String
           optional :city, type: String
           optional :state, type: String
           optional :zip_code, type: Integer
+          optional :picks, type: Array
         end
         post '', root: :users do
           p = declared(params)
-          # add a http code?
-          return 'Passwords don\'t match' if p.password != p.password_confirm
-          user = User.new({
-                            first_name: p.first_name,
-                            last_name: p.last_name,
-                            email: p.email,
-                            password: p.password
-                          })
+          user = User.new(user_params)
+          if p.picks
+            p.picks.each do |pick|
+              new_pick = Pick.new(pick_params(pick))
+              new_pick.user = user
+              new_pick.save!
+              user.picks << new_pick
+            end
+          end
           user.save!
           user
         end
@@ -50,6 +51,8 @@ module API
             optional :city, type: String
             optional :state, type: String
             optional :zip_code, type: Integer
+            optional :picks, type: Array
+            # check for array of hashes with game_id, team_id, points?
 
             all_or_none_of :old_password, :new_password
           end
@@ -60,17 +63,33 @@ module API
             if p.new_password
               if user.password != p.old_password
                 status 401
-                return 'Passwords don\'t match'
+                return "Passwords don't match"
               else
                 user.password = p.new_password
                 user.save!
                 user
               end
 
-            else
-              user.update!(user_params)
-              user
+            elsif p.picks
+              p.picks.each do |new_pick|
+                previous_pick = nil
+                game = Game.find(new_pick.game_id)
+                user.picks.each do |old_pick|
+                  if previous_pick.nil?
+                    previous_pick = old_pick if old_pick.game == game
+                  end
+                end
+                if previous_pick.nil?
+                  previous_pick = user.picks.create(pick_params(new_pick))
+                  previous_pick.game = game
+                else
+                  previous_pick.update(pick_params(new_pick))
+                end
+                previous_pick.save!
+              end
             end
+            user.update!(user_params)
+            user
           end
 
           desc 'Get a user'
@@ -96,10 +115,32 @@ module API
           p = declared(params)
           serialized_params = {}
 
-          allowed_params = [:first_name, :last_name, :email, :address, :addres_two, :city, :state, :zip_code]
+          allowed_params = [:first_name, :last_name, :email, :address, :address_two, :city, :state, :zip_code]
           allowed_params.each { |param| serialized_params[param] = p[param] unless p[param].nil? }
 
           serialized_params
+        end
+
+        def pick_params(pick)
+          serialized_params = {}
+          allowed_params = [:points, :team_id]
+          allowed_params.each { |param| serialized_params[param] = pick[param] unless pick[param].nil? }
+          serialized_params
+        end
+
+        def verify_picks(new_picks)
+          # new_pick_models = []
+          # games = []
+          # new_points = []
+          # new_picks.each do |pick|
+          #   new_pick = Pick.new(pick)
+          #   games.push(pick.game)
+          #   new_points.push(pick.points)
+          #   new_pick_models.push(pick)
+          # end
+          # games.each do { |game| old_points.push(game.p)}
+          # new_points.sort
+
         end
       end
 

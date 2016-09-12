@@ -28,7 +28,6 @@ module API
           desc 'Get a game'
           get '' do
             game = Game.find(params[:game_id])
-            byebug
             game
           end
           desc 'Update a game'
