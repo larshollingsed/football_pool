@@ -3,6 +3,8 @@ module API
     class Users < Grape::API
       include API::V1::Defaults
 
+      REQUIRED_POINTS = 5
+
       resource :users do
         desc 'Return all users'
         get '', root: :users do
@@ -26,14 +28,19 @@ module API
           p = declared(params)
           user = User.new(user_params)
           if p.picks
-            p.picks.each do |pick|
-              new_pick = Pick.new(pick_params(pick))
-              new_pick.user = user
-              new_pick.save!
-              user.picks << new_pick
+            User.transaction do
+              # points = 0
+              # p.picks.each { |p| points += p.points }
+              # error! "Points don\'t equal #{REQUIRED_POINTS}" if points != REQUIRED_POINTS
+              p.picks.each do |pick|
+                new_pick = Pick.new(pick_params(pick))
+                new_pick.user = user
+                new_pick.save!
+                user.picks << new_pick
+              end
+              user.save!
             end
           end
-          user.save!
           user
         end
 
