@@ -5,3 +5,14 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+# 13.times do |g|
+#   Game.create(name: "Game ##{g}")
+#   26.times do |t|
+#     Team.create(name: "Team ##{t}")
+#   end
+# end
+26.times do |t|
+  t += 1
+  game = t.odd? ? Game.create!(name: "Game ##{t / 2 + 1}") : Game.find(t / 2)
+  game.teams.create!(name: "Team ##{t}")
+end
