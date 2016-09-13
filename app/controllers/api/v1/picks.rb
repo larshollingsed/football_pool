@@ -12,7 +12,6 @@ module API
         # create
         desc 'Create a new pick'
         params do
-          requires :game_id, type: Integer
           requires :user_id, type: Integer
           requires :team_id, type: Integer
           requires :points, type: Integer
@@ -74,7 +73,7 @@ module API
           p = declared(params)
           serialized_params = {}
 
-          allowed_params = [:game_id, :team_id, :user_id, :points]
+          allowed_params = [:team_id, :user_id, :points]
           allowed_params.each { |param| serialized_params[param] = p[param] unless p[param].nil? }
 
           serialized_params

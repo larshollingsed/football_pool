@@ -1,5 +1,6 @@
 require 'bcrypt'
 class User < ApplicationRecord
+  # programatically determine points
   REQUIRED_POINTS = 5
   has_many :picks
   validate :all_picks, on: :update
@@ -32,7 +33,7 @@ class User < ApplicationRecord
 
   def all_picks
     points = picks.pluck('points')
-    byebug
+    # byebug
     errors.add(:picks, "Points don\'t add up to #{REQUIRED_POINTS}") if points.sum != REQUIRED_POINTS
   end
 end

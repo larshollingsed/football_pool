@@ -10,7 +10,7 @@ module API
         get '', root: :users do
           User.all
         end
-        # create
+
         desc 'Create a new user'
         params do
           requires :first_name, type: String
@@ -45,7 +45,7 @@ module API
         end
 
         route_param :user_id, type: Integer do
-          # update
+
           desc 'Update a user'
           params do
             optional :first_name, type: String
@@ -78,24 +78,26 @@ module API
               end
 
             elsif p.picks
-              p.picks.each do |new_pick|
-                previous_pick = nil
-                game = Game.find(new_pick.game_id)
-                user.picks.each do |old_pick|
-                  if previous_pick.nil?
-                    previous_pick = old_pick if old_pick.game == game
+              User.transaction do
+                p.picks.each do |new_pick|
+                  previous_pick = nil
+                  game = Team.find(new_pick.team_id).game
+                  user.picks.each do |old_pick|
+                    if previous_pick.nil?
+                      previous_pick = old_pick if old_pick.game == game
+                    end
                   end
+                  if previous_pick.nil?
+                    previous_pick = user.picks.create(pick_params(new_pick))
+                    previous_pick.game = game
+                  else
+                    previous_pick.update(pick_params(new_pick))
+                  end
+                  previous_pick.save!
                 end
-                if previous_pick.nil?
-                  previous_pick = user.picks.create(pick_params(new_pick))
-                  previous_pick.game = game
-                else
-                  previous_pick.update(pick_params(new_pick))
-                end
-                previous_pick.save!
+                user.update!(user_params)
               end
             end
-            user.update!(user_params)
             user
           end
 
@@ -108,6 +110,7 @@ module API
             desc "Get a user's picks"
             get '' do
               user = User.find(params[:user_id])
+              byebug
               user.picks
             end
           end
