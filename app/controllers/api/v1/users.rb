@@ -1,13 +1,13 @@
 module API
   module V1
+    # Grape Users Router/Controller
     class Users < Grape::API
       include API::V1::Defaults
-
-      REQUIRED_POINTS = 5
 
       resource :users do
         desc 'Return all users'
         get '', root: :users do
+          byebug
           User.all
         end
 
@@ -29,9 +29,6 @@ module API
           user = User.new(user_params)
           if p.picks
             User.transaction do
-              # points = 0
-              # p.picks.each { |p| points += p.points }
-              # error! "Points don\'t equal #{REQUIRED_POINTS}" if points != REQUIRED_POINTS
               p.picks.each do |pick|
                 new_pick = Pick.new(pick_params(pick))
                 new_pick.user = user
@@ -45,7 +42,6 @@ module API
         end
 
         route_param :user_id, type: Integer do
-
           desc 'Update a user'
           params do
             optional :first_name, type: String
@@ -110,11 +106,9 @@ module API
             desc "Get a user's picks"
             get '' do
               user = User.find(params[:user_id])
-              byebug
               user.picks
             end
           end
-
         end
       end
 
@@ -137,23 +131,7 @@ module API
           allowed_params.each { |param| serialized_params[param] = pick[param] unless pick[param].nil? }
           serialized_params
         end
-
-        def verify_picks(new_picks)
-          # new_pick_models = []
-          # games = []
-          # new_points = []
-          # new_picks.each do |pick|
-          #   new_pick = Pick.new(pick)
-          #   games.push(pick.game)
-          #   new_points.push(pick.points)
-          #   new_pick_models.push(pick)
-          # end
-          # games.each do { |game| old_points.push(game.p)}
-          # new_points.sort
-
-        end
       end
-
     end
   end
 end

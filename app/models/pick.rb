@@ -12,14 +12,12 @@ class Pick < ApplicationRecord
   end
 
   def game_played?
-    !game.winner.nil?
+    game.played?
   end
 
   def team_belongs_to_game
-    game_name = game ? 'The ' + game.name : 'this game'
     team_name = team ? team.name : 'This team'
+    game_name = game ? 'The ' + game.name : 'this game'
     errors.add(:team, "#{team_name} is not playing in #{game_name}") unless game && game.teams.include?(team)
-    # errors.add(:team, "#{team_name} is not scheduled for a game yet") unless team && team.game
-    # errors.add(:team, "#{team.name} is not playing in The #{game.name}") unless game.teams.include?(team)
   end
 end
